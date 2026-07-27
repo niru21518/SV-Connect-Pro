@@ -102,20 +102,32 @@ export async function fetchAllRegistrations(): Promise<RegistrationRecord[]> {
           fullName: data.fullName || "",
           fatherName: data.fatherName || "",
           dob: data.dob || "",
+
+          dobDay: data.dobDay || "",
+          dobMonth: data.dobMonth || "",
+          dobYear: data.dobYear || "",
+
           age: Number(data.age) || 0,
           gender: data.gender || "Other",
+
           mobileNumber: data.mobileNumber || "",
           state: data.state || "",
           district: data.district || "",
           villageTown: data.villageTown || "",
           pinCode: data.pinCode || "",
+
           qualification: data.qualification || "",
           occupation: data.occupation || "",
+
+          schoolCollege: data.schoolCollege || "",
+          companyName: data.companyName || "",
+          businessDetails: data.businessDetails || "",
+
           preferredLanguage: data.preferredLanguage || "English",
           declarationAccepted: Boolean(data.declarationAccepted),
           applicationId: data.applicationId || d.id,
           createdAt: data.createdAtIso || new Date().toISOString(),
-          status: data.status || "Pending"
+          status: data.status || "Pending",
         };
       });
       return docs;
