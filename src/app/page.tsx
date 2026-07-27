@@ -1054,15 +1054,14 @@ export default function RegistrationPage() {
                           Occupation Details <span className="text-rose-500">*</span>
                         </label>
 
-                        <input
+                        <textarea
                           ref={businessDetailsRef}
-                          type="text"
                           name="businessDetails"
                           value={formData.businessDetails || ""}
                           onChange={handleInputChange}
                           placeholder="Enter Occupation Details"
                           className={getFieldClasses("businessDetails")}
-                        />
+                        ></textarea>
                       </div>
                     )}
 
