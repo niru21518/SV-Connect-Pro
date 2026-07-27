@@ -96,7 +96,7 @@ export default function RegistrationPage() {
   const schoolCollegeRef = useRef<HTMLInputElement>(null);
   const companyNameRef = useRef<HTMLInputElement>(null);
   const businessDetailsRef =
-  useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  useRef<HTMLTextAreaElement>(null);
   const declarationAcceptedRef = useRef<HTMLInputElement>(null);
 
   // Scroll to top when view switches
