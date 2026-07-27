@@ -27,9 +27,9 @@ export interface RegistrationData {
   occupation: string;
 
   // New V2 Dynamic Fields
-  schoolCollege?: string;
-  companyName?: string;
-  businessDetails?: string;
+  schoolCollege: string;
+  companyName: string;
+  businessDetails: string;
 
   preferredLanguage: 'Assamese' | 'Hindi' | 'English';
 
