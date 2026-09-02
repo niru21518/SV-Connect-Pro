@@ -38,6 +38,8 @@ import {
   HelpCircle
 } from "lucide-react";
 
+const WHATSAPP_NUMBER = "918761042749";
+
 export default function RegistrationPage() {
   // Navigation State: Landing Page vs Registration Form
   const [showLandingPage, setShowLandingPage] = useState(true);
@@ -79,6 +81,7 @@ export default function RegistrationPage() {
   const [availableDistricts, setAvailableDistricts] = useState<string[]>([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [submitFailed, setSubmitFailed] = useState(false);
   const [errorField, setErrorField] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -167,6 +170,7 @@ export default function RegistrationPage() {
     if (errorField === fieldName) {
       setErrorField(null);
       setErrorMessage("");
+      setSubmitFailed(false);
     }
   };
 
@@ -204,6 +208,40 @@ export default function RegistrationPage() {
       }));
     }
   };
+
+  const handleWhatsAppFallback = () => {
+  const message = [
+    "📋 SV CONNECT PRO – REGISTRATION",
+    "",
+    `Full Name: ${formData.fullName}`,
+    `Father's Name: ${formData.fatherName}`,
+    `Date of Birth: ${formData.dob}`,
+    `Age: ${formData.age}`,
+    `Gender: ${formData.gender}`,
+    `Mobile Number: ${formData.mobileNumber}`,
+    "",
+    `State: ${formData.state}`,
+    `District: ${formData.district}`,
+    `Village/Town: ${formData.villageTown}`,
+    `PIN Code: ${formData.pinCode}`,
+    "",
+    `Qualification: ${formData.qualification}`,
+    `Occupation: ${formData.occupation}`,
+    `School/College: ${formData.schoolCollege || "N/A"}`,
+    `Company Name: ${formData.companyName || "N/A"}`,
+    `Business/Occupation Details: ${formData.businessDetails || "N/A"}`,
+    "",
+    `Preferred Language: ${formData.preferredLanguage}`,
+    `Declaration: ${formData.declarationAccepted ? "Accepted" : "Not Accepted"}`,
+    "",
+    "⚠️ Firebase submission failed.",
+    "Please consider this registration through WhatsApp."
+  ].join("\n");
+
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+
+  window.location.href = whatsappUrl;
+};
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -280,18 +318,29 @@ export default function RegistrationPage() {
     }
 
     startTransition(async () => {
-      try {
-        const res = await submitRegistration(formData);
-        if (res.success) {
-          setIsSubmitted(true);
-        } else {
-          setErrorMessage("Form submit karne me samasya aayi. Kripya punah prayas karein.");
-        }
-      } catch (err) {
-        setErrorMessage("Server error. Kripya punah prayas karein.");
-      }
-    });
-  };
+  try {
+    const res = await submitRegistration(formData);
+
+    if (res.success) {
+      setIsSubmitted(true);
+      setErrorMessage("");
+      setSubmitFailed(false);
+    } else {
+      setSubmitFailed(true);
+      setErrorMessage(
+        "Registration Firebase me save nahi ho paya. Aap neeche WhatsApp se details bhej sakte hain."
+      );
+    }
+  } catch (err) {
+    console.error("Registration submission error:", err);
+
+    setSubmitFailed(true);
+    setErrorMessage(
+      "Registration submit nahi ho paya. Aap neeche WhatsApp se details bhej sakte hain."
+    );
+  }
+});
+};
 
   const resetForm = () => {
     setIsSubmitted(false);
@@ -665,7 +714,84 @@ export default function RegistrationPage() {
                   </button>
                 </div>
               </div>
+            ) : submitFailed ? (
+                            /* ERROR / WHATSAPP VIEW */
+              <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 sm:p-12 text-center transition-all animate-fadeIn">
+                <div className="mx-auto w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center text-rose-600 mb-6">
+                  <AlertCircle className="w-12 h-12" />
+                </div>
+
+                <div className="space-y-5 max-w-lg mx-auto">
+                  <h2 className="text-3xl sm:text-4xl font-extrabold text-rose-600">
+                    Oops! Form Submit Nahi Ho Pa Raha Hai
+                  </h2>
+
+                  <p className="text-base sm:text-lg text-slate-700 font-medium leading-7">
+                    Hume technical issue ka saamna karna pad raha hai,
+                    is wajah se aapka form abhi submit nahi ho pa raha hai.
+                  </p>
+
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5">
+                    <p className="font-semibold text-emerald-800">
+                      Kripya Pareshan Na Ho
+                    </p>
+
+                    <p className="mt-2 text-sm text-emerald-700 leading-6">
+                      Aap neeche diye gaye button par click karke apni
+                      details WhatsApp ke through hamari team ko bhej sakte hain.
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={handleWhatsAppFallback}
+                      className="mt-5 w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold shadow-lg transition-all"
+                    >
+                      <Send className="w-5 h-5" />
+                      Send via WhatsApp
+                    </button>
+
+                    <p className="mt-3 text-xs text-emerald-700">
+                      WhatsApp khulne ke baad message ko manually Send karein.
+                    </p>
+                  </div>
+
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 text-left">
+                    <p className="font-semibold text-slate-800">
+                      Uske baad kya hoga?
+                    </p>
+
+                    <div className="mt-3 space-y-2 text-sm text-slate-600">
+                      <p>✓ Hamari team aapki jankari receive karegi.</p>
+                      <p>✓ Hamari team aapse jald hi contact karegi.</p>
+                      <p>✓ Aapko form dobara bharne ki zarurat nahi hai.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmitFailed(false);
+                      setErrorMessage("");
+                    }}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg transition-all"
+                  >
+                    <RefreshCw className="w-5 h-5" />
+                    Dobara Try Karein
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleBackToLanding}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition-all"
+                  >
+                    Go to Home Page
+                  </button>
+                </div>
+              </div>
             ) : (
+
               /* FORM VIEW */
               <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
                 <div className="bg-gradient-to-r from-blue-700 to-indigo-700 px-6 py-4 text-white flex items-center justify-between">
@@ -678,13 +804,6 @@ export default function RegistrationPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
-                  {errorMessage && (
-                    <div className="flex items-center gap-2 bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-xl text-sm font-medium">
-                      <AlertCircle className="w-5 h-5 shrink-0 text-rose-500" />
-                      <span>{errorMessage}</span>
-                    </div>
-                  )}
-
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {/* Full Name */}
                     <div className="sm:col-span-1">

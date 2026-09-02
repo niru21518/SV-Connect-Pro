@@ -43,48 +43,31 @@ function saveLocalRegistrations(records: RegistrationRecord[]) {
   }
 }
 
-export async function submitRegistration(data: RegistrationData): Promise<{ success: boolean; id?: string }> {
+export async function submitRegistration(
+  data: RegistrationData
+): Promise<{ success: boolean; id?: string; error?: string }> {
   const applicationId = generateApplicationId();
   const createdAt = new Date().toISOString();
 
   try {
-    // Attempt Firestore insert
     const colRef = collection(db, COLLECTION_NAME);
+
     const docRef = await addDoc(colRef, {
       ...data,
       applicationId,
       createdAt: serverTimestamp(),
       createdAtIso: createdAt,
-      status: "Pending"
+      status: "Pending",
     });
-
-    // Also update local cache for quick UI sync
-    const record: RegistrationRecord = {
-      ...data,
-      id: docRef.id,
-      applicationId,
-      createdAt
-    };
-    const current = getLocalRegistrations();
-    saveLocalRegistrations([record, ...current]);
 
     return { success: true, id: docRef.id };
   } catch (err) {
-    console.warn("Firestore save fallback activated:", err);
-    
-    // Local fallback
-    const fallbackId = `local_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const record: RegistrationRecord = {
-      ...data,
-      id: fallbackId,
-      applicationId,
-      createdAt
+    console.error("Firestore registration save failed:", err);
+
+    return {
+      success: false,
+      error: "Firestore registration save failed",
     };
-
-    const current = getLocalRegistrations();
-    saveLocalRegistrations([record, ...current]);
-
-    return { success: true, id: fallbackId };
   }
 }
 
